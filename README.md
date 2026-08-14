@@ -1,10 +1,21 @@
-# botSticker
+ # botSticker
 
-Bot de WhatsApp que convierte imágenes en stickers usando `whatsapp-web.js`.
+ Bot de WhatsApp que convierte imágenes en stickers.
+
+ Nota: este proyecto NO usa `whatsapp-web.js`. En su lugar utiliza las siguientes librerías:
+
+- `@whiskeysockets/baileys`: cliente de WhatsApp que implementa el protocolo Web/API (conexión por WebSocket). Maneja autenticación, envío/recepción de mensajes y descarga/subida de medios.
+- `sharp`: procesamiento y manipulación de imágenes (redimensionar, convertir formato y preparar la imagen para sticker).
+- `pino`: logger rápido y eficiente para registrar eventos y errores en el bot.
+- `qrcode-terminal`: muestra el QR de autenticación en la consola para escanear con WhatsApp.
+
+Además de las anteriores, el proyecto usa herramientas de desarrollo:
+
+- `typescript` y `tsx` para ejecutar código TypeScript en desarrollo.
 
 ## Estructura
 
-- [src/index.js](src/index.js): código principal del bot.
+- [src/index.ts](src/index.ts): código principal del bot.
 - [package.json](package.json): scripts y dependencias.
 
 ## Requisitos
@@ -14,50 +25,48 @@ Bot de WhatsApp que convierte imágenes en stickers usando `whatsapp-web.js`.
 
 ## Instalación
 
-1. Clona el repositorio y entra en la carpeta del proyecto.
-2. Instala dependencias:
-
 ```bash
 npm install
 ```
 
 ## Ejecutar el bot
 
-Inicia el bot en modo desarrollo:
+En desarrollo (observa cambios con `tsx`):
 
 ```bash
 npm run dev
 ```
 
-La primera vez te mostrará un QR en la consola; escanéalo con WhatsApp Web.
+O iniciar directamente:
+
+```bash
+npm start
+```
+
+La primera vez mostrará un QR en la consola; escanéalo con WhatsApp para autenticar la sesión.
+
+## Qué hace cada librería (detalle rápido)
+
+- `@whiskeysockets/baileys`: establece la conexión con WhatsApp, gestiona la sesión y proporciona métodos para enviar/recibir mensajes y descargar medios.
+- `sharp`: convierte la imagen a un formato y tamaño adecuados para sticker (p. ej. WebP), aplica recorte/redimensionado si es necesario.
+- `pino`: centraliza y formatea logs (info/debug/error) para diagnóstico y producción.
+- `qrcode-terminal`: genera y pinta el código QR en la consola para la autenticación.
 
 ## Uso
 
 - Envía o reenvía una imagen y escribe `!sticker` en el chat para que el bot la convierta en sticker.
 - También funciona si citas una imagen y envías `!sticker` en la respuesta.
 
-Ejemplos:
-
-- Mensaje directo con imagen y texto `!sticker`.
-- Citar una imagen existente y enviar `!sticker` (el bot usará la media citada).
-
 ## Registro y diagnóstico
 
-El bot incluye reintentos y logging ampliado al descargar media. Si ocurre un fallo en `downloadMedia`, revisa la salida de la consola; el bot intentará notificar al remitente cuando no pueda descargar la imagen.
+- Los logs se imprimen en la consola usando `pino`.
+- Si ocurre un fallo al descargar media se intentará reintentar y se notificará al remitente en caso de fallo persistente.
 
-Si necesitas más detalle:
+## Troubleshooting
 
-- Revisa los logs del terminal donde ejecutas `npm run dev`.
-- Asegúrate de que Chromium/Chromium-embedded pueda ejecutarse en tu sistema (flags en [src/index.js](src/index.js)).
-
-## Troubleshooting (problemas comunes)
-
-- Error al descargar media (ej. `downloadMedia falló: r`):
-  - Intenta ejecutar con `headless: false` en la configuración de `puppeteer` dentro de [src/index.js](src/index.js) para ver el navegador.
-  - Asegúrate de que no hay restricciones de sandbox en macOS; en entornos con permisos limitados prueba a quitar `--no-sandbox`/`--disable-setuid-sandbox` (sólo si sabes lo que haces).
-  - Borra la sesión guardada (carpeta `.wwebjs_auth` / LocalAuth storage) si la sesión está corrupta.
-
-- Errores relacionados con versiones: verifica que la versión de `whatsapp-web.js` en [package.json](package.json) sea compatible con tu entorno.
+- Si no aparece el QR: comprueba que no hay errores en la consola y que `qrcode-terminal` se ejecuta.
+- Problemas con la descarga de media: revisa permisos, conexiones y logs; `baileys` expone errores detallados sobre transferencia de archivos.
+- Problemas con el procesamiento de imágenes: revisa que `sharp` esté correctamente instalado (puede requerir dependencias nativas en tu sistema).
 
 ## Contribuir
 

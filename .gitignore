@@ -4,6 +4,9 @@
 ## whatsapp session ##
 auth
 
+## Mac folder ###
+.DS_Store
+
 ### Node ###
 # Logs
 logs
